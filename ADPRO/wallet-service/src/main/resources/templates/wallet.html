@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Wallet Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h2>Wallet Dashboard</h2>
+    <div class="card p-4 mb-4">
+        <h5>User ID: <span th:text="${wallet.userId}"></span></h5>
+        <h5>Saldo: Rp <span th:text="${wallet.balance}"></span></h5>
+    </div>
+
+    <div class="card p-4">
+        <h5>Top Up Saldo</h5>
+        <form th:action="@{/wallet/{userId}/topup(userId=${wallet.userId})}" method="post">
+            <div class="mb-3">
+                <label>Jumlah Top Up</label>
+                <input type="number" name="amount" class="form-control" min="1" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Top Up</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
