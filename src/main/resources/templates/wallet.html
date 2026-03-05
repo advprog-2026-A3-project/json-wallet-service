@@ -7,19 +7,33 @@
 <body>
 <div class="container mt-5">
     <h2>Wallet Dashboard</h2>
+
     <div class="card p-4 mb-4">
-        <h5>User ID: <span th:text="${wallet.userId}"></span></h5>
-        <h5>Saldo: Rp <span th:text="${wallet.balance}"></span></h5>
+        <h5>Pengguna: <span th:text="${wallet.userId}"></span></h5>
+        <h5>Saldo: 
+            <span th:text="${#numbers.formatDecimal(wallet.balance, 1, 'POINT', 2, 'COMMA')}"></span>
+        </h5>
+    </div>
+
+    <div class="card p-4 mb-4">
+        <h5>Top Up Saldo</h5>
+        <form th:action="@{/view/wallet/{userId}/topup(userId=${wallet.userId})}" method="post">
+            <div class="mb-3">
+                <label>Jumlah Top Up (Rp)</label>
+                <input type="number" name="amount" class="form-control" min="1" placeholder="Contoh: 50000" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Top Up</button>
+        </form>
     </div>
 
     <div class="card p-4">
-        <h5>Top Up Saldo</h5>
-        <form th:action="@{/wallet/{userId}/topup(userId=${wallet.userId})}" method="post">
+        <h5>Tarik Saldo</h5>
+        <form th:action="@{/view/wallet/{userId}/withdraw(userId=${wallet.userId})}" method="post">
             <div class="mb-3">
-                <label>Jumlah Top Up</label>
-                <input type="number" name="amount" class="form-control" min="1" required>
+                <label>Jumlah Penarikan (Rp)</label>
+                <input type="number" name="amount" class="form-control" min="1" placeholder="Contoh: 20000" required>
             </div>
-            <button type="submit" class="btn btn-primary">Top Up</button>
+            <button type="submit" class="btn btn-danger">Tarik Saldo</button>
         </form>
     </div>
 </div>
