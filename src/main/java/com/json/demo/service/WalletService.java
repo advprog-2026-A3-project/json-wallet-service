@@ -24,12 +24,12 @@ public class WalletService {
 
     @Transactional
     public UserWallet createWallet(String userId, BigDecimal initialBalance) {
-        UserWallet wallet = walletRepository.findByUserId(userId)
-                .orElse(UserWallet.builder()
-                        .userId(userId)
-                        .balance(initialBalance != null ? initialBalance : BigDecimal.ZERO)
-                        .build());
-        return walletRepository.save(wallet);
+        return walletRepository.findByUserId(userId)
+                .orElseGet(() -> walletRepository.save(
+                        UserWallet.builder()
+                                .userId(userId)
+                                .balance(initialBalance != null ? initialBalance : BigDecimal.ZERO)
+                                .build()));
     }
 
     @Transactional

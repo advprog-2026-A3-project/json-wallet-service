@@ -85,4 +85,15 @@ class WalletServiceTest {
         assertThatThrownBy(() -> walletService.withdraw("user-1", new BigDecimal("200.00")))
                 .isInstanceOf(InsufficientBalanceException.class);
     }
+
+    @Test
+    void createWallet_userAlreadyExists_returnsExistingWallet() {
+        when(walletRepository.findByUserId("user-1")).thenReturn(Optional.of(wallet));
+
+        UserWallet result = walletService.createWallet("user-1", new BigDecimal("50.00"));
+
+        assertThat(result.getUserId()).isEqualTo("user-1");
+        assertThat(result.getBalance()).isEqualByComparingTo("100.00");
+        verify(walletRepository, never()).save(any());
+    }
 }
