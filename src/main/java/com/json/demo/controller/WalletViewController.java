@@ -1,7 +1,7 @@
 package com.json.demo.controller;
 
 import com.json.demo.model.UserWallet;
-import com.json.demo.service.WalletService;
+import com.json.demo.service.WalletOperations;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class WalletViewController {
 
-    private final WalletService walletService;
+    private final WalletOperations walletService;
 
     @GetMapping("/{userId}")
     public String dashboard(@PathVariable String userId, Model model) {
