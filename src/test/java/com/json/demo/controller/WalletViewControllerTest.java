@@ -1,7 +1,7 @@
 package com.json.demo.controller;
 
 import com.json.demo.model.UserWallet;
-import com.json.demo.service.WalletService;
+import com.json.demo.service.WalletOperations;
 import com.json.demo.web.exception.WalletNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ class WalletViewControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private WalletService walletService;
+    private WalletOperations walletService;
 
     private UserWallet dummyWallet() {
         return UserWallet.builder()

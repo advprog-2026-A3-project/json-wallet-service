@@ -2,7 +2,9 @@ package com.json.demo.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.json.demo.model.UserWallet;
-import com.json.demo.service.WalletService;
+import com.json.demo.service.WalletOperations;
+import com.json.demo.web.dto.UserWalletResponse;
+import com.json.demo.web.exception.InsufficientBalanceException;
 import com.json.demo.web.exception.WalletNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +33,10 @@ class WalletControllerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private WalletService walletService;
+    private WalletOperations walletService;
+
+    @MockBean
+    private WalletResponseMapper walletResponseMapper;
 
     private UserWallet dummyWallet() {
         return UserWallet.builder()
@@ -45,7 +50,9 @@ class WalletControllerTest {
 
     @Test
     void getWallet_found_returns200() throws Exception {
-        when(walletService.getWalletByUserId("jenisa-001")).thenReturn(dummyWallet());
+        UserWallet wallet = dummyWallet();
+        when(walletService.getWalletByUserId("jenisa-001")).thenReturn(wallet);
+        when(walletResponseMapper.toResponse(wallet)).thenReturn(toResponse(wallet));
 
         mockMvc.perform(get("/wallet/jenisa-001"))
                 .andExpect(status().isOk())
@@ -64,7 +71,9 @@ class WalletControllerTest {
 
     @Test
     void createWallet_returns201() throws Exception {
-        when(walletService.createWallet(eq("jenisa-001"), any())).thenReturn(dummyWallet());
+        UserWallet wallet = dummyWallet();
+        when(walletService.createWallet(eq("jenisa-001"), any())).thenReturn(wallet);
+        when(walletResponseMapper.toResponse(wallet)).thenReturn(toResponse(wallet));
 
         String body = """
                 {
@@ -82,7 +91,9 @@ class WalletControllerTest {
 
     @Test
     void topUp_returns200() throws Exception {
-        when(walletService.topUp(eq("jenisa-001"), any())).thenReturn(dummyWallet());
+        UserWallet wallet = dummyWallet();
+        when(walletService.topUp(eq("jenisa-001"), any())).thenReturn(wallet);
+        when(walletResponseMapper.toResponse(wallet)).thenReturn(toResponse(wallet));
 
         String body = """
                 {
@@ -100,7 +111,9 @@ class WalletControllerTest {
 
     @Test
     void withdraw_returns200() throws Exception {
-        when(walletService.withdraw(eq("jenisa-001"), any())).thenReturn(dummyWallet());
+        UserWallet wallet = dummyWallet();
+        when(walletService.withdraw(eq("jenisa-001"), any())).thenReturn(wallet);
+        when(walletResponseMapper.toResponse(wallet)).thenReturn(toResponse(wallet));
 
         String body = """
                 {
@@ -114,5 +127,34 @@ class WalletControllerTest {
                         .content(body))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId").value("jenisa-001"));
+    }
+
+    @Test
+    void withdraw_insufficientBalance_returns400() throws Exception {
+        when(walletService.withdraw(eq("jenisa-001"), any()))
+                .thenThrow(new InsufficientBalanceException("Insufficient balance for withdrawal"));
+
+        String body = """
+                {
+                    "userId": "jenisa-001",
+                    "amount": 200000
+                }
+                """;
+
+        mockMvc.perform(post("/wallet/withdraw")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Insufficient balance for withdrawal"));
+    }
+
+    private UserWalletResponse toResponse(UserWallet wallet) {
+        return new UserWalletResponse(
+                wallet.getId(),
+                wallet.getUserId(),
+                wallet.getBalance(),
+                wallet.getCreatedAt(),
+                wallet.getUpdatedAt()
+        );
     }
 }
