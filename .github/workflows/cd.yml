@@ -39,8 +39,22 @@ jobs:
           EC2_USER: ${{ secrets.AWS_EC2_USER }}
           EC2_SSH_KEY: ${{ secrets.AWS_EC2_SSH_KEY }}
         run: |
-          if [ -z "$EC2_HOST" ] || [ -z "$EC2_USER" ] || [ -z "$EC2_SSH_KEY" ]; then
-            echo "Missing AWS EC2 SSH secrets."
+          missing_secrets=()
+          if [ -z "$EC2_HOST" ]; then
+            missing_secrets+=("AWS_EC2_HOST")
+          fi
+          if [ -z "$EC2_USER" ]; then
+            missing_secrets+=("AWS_EC2_USER")
+          fi
+          if [ -z "$EC2_SSH_KEY" ]; then
+            missing_secrets+=("AWS_EC2_SSH_KEY")
+          fi
+          if [ ${#missing_secrets[@]} -gt 0 ]; then
+            printf 'Missing required secrets: %s\n' "${missing_secrets[*]}"
+            exit 1
+          fi
+          if [ -z "$POSTGRES_PASSWORD" ]; then
+            echo "Missing required secret: WALLET_DB_PASSWORD"
             exit 1
           fi
           mkdir -p ~/.ssh
@@ -100,6 +114,7 @@ jobs:
               -e DB_URL='jdbc:postgresql://$DB_CONTAINER_NAME:5432/$POSTGRES_DB' \
               -e DB_USERNAME='$POSTGRES_USER' \
               -e DB_PASSWORD='$POSTGRES_PASSWORD' \
+              -e DB_SSL_MODE='disable' \
               $IMAGE_NAME:latest
             rm -f /tmp/$IMAGE_NAME.tar.gz
           "
@@ -108,5 +123,12 @@ jobs:
         env:
           EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
         run: |
-          sleep 25
-          curl --fail --silent --show-error "http://$EC2_HOST:$APP_PORT/actuator/health" | grep '"status":"UP"'
+          for i in {1..12}; do
+            if curl --fail --silent --show-error "http://$EC2_HOST:$APP_PORT/actuator/health" | grep '"status":"UP"'; then
+              exit 0
+            fi
+            echo "Health check attempt $i failed, retrying in 5 seconds..."
+            sleep 5
+          done
+          echo "Service did not become healthy in time."
+          exit 1
