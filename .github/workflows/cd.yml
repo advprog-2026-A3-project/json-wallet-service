@@ -43,10 +43,6 @@ jobs:
             echo "Missing AWS EC2 SSH secrets."
             exit 1
           fi
-          if [ -z "$POSTGRES_PASSWORD" ]; then
-            echo "Missing WALLET_DB_PASSWORD secret."
-            exit 1
-          fi
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           printf '%s\n' "$EC2_SSH_KEY" > ~/.ssh/ec2_key
