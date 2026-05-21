@@ -114,6 +114,7 @@ jobs:
               -e DB_URL='jdbc:postgresql://$DB_CONTAINER_NAME:5432/$POSTGRES_DB' \
               -e DB_USERNAME='$POSTGRES_USER' \
               -e DB_PASSWORD='$POSTGRES_PASSWORD' \
+              -e DB_SSL_MODE='disable' \
               $IMAGE_NAME:latest
             rm -f /tmp/$IMAGE_NAME.tar.gz
           "
