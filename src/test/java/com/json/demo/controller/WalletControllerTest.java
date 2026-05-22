@@ -89,25 +89,26 @@ class WalletControllerTest {
                 .andExpect(jsonPath("$.userId").value("jenisa-001"));
     }
 
-    @Test
-    void topUp_returns200() throws Exception {
-        UserWallet wallet = dummyWallet();
-        when(walletService.topUp(eq("jenisa-001"), any())).thenReturn(wallet);
-        when(walletResponseMapper.toResponse(wallet)).thenReturn(toResponse(wallet));
+        @Test
+        void topUp_returns200() throws Exception {
+    UserWallet wallet = dummyWallet();
+    when(walletService.topUp(eq("jenisa-001"), any(), any())).thenReturn(wallet); // tambahin any() ketiga
+    when(walletResponseMapper.toResponse(wallet)).thenReturn(toResponse(wallet));
 
-        String body = """
-                {
-                    "userId": "jenisa-001",
-                    "amount": 50000
-                }
-                """;
+    String body = """
+            {
+                "userId": "jenisa-001",
+                "amount": 50000,
+                "paymentMethod": "BANK_TRANSFER"
+            }
+            """;
 
-        mockMvc.perform(post("/wallet/topup")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.userId").value("jenisa-001"));
-    }
+    mockMvc.perform(post("/wallet/topup")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.userId").value("jenisa-001"));
+}
 
     @Test
     void withdraw_returns200() throws Exception {

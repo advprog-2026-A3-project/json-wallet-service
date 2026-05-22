@@ -58,14 +58,15 @@ class WalletViewControllerTest {
     }
 
     @Test
-    void topUp_success_returns200() throws Exception {
-        when(walletService.topUp(eq("jenisa-001"), any())).thenReturn(dummyWallet());
+void topUp_success_returns200() throws Exception {
+    when(walletService.topUp(eq("jenisa-001"), any(), any())).thenReturn(dummyWallet()); // tambahin any() ketiga
 
-        mockMvc.perform(post("/view/wallet/jenisa-001/topup")
-                        .param("amount", "50000"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("wallet"));
-    }
+    mockMvc.perform(post("/view/wallet/jenisa-001/topup")
+                    .param("amount", "50000")
+                    .param("paymentMethod", "BANK_TRANSFER")) // tambahin param ini
+            .andExpect(status().isOk())
+            .andExpect(view().name("wallet"));
+}
 
     @Test
     void withdraw_success_returns200() throws Exception {

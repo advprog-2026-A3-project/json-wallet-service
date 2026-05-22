@@ -2,6 +2,7 @@ package com.json.demo.service;
 
 import com.json.demo.model.UserWallet;
 import com.json.demo.repository.WalletRepository;
+import com.json.demo.service.transaction.PaymentMethod;
 import com.json.demo.service.transaction.WalletTransactionStrategyFactory;
 import com.json.demo.service.transaction.WalletTransactionType;
 import com.json.demo.web.exception.InvalidAmountException;
@@ -43,7 +44,7 @@ public class WalletService implements WalletOperations {
 
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public UserWallet topUp(String userId, BigDecimal amount) {
+    public UserWallet topUp(String userId, BigDecimal amount, PaymentMethod paymentMethod) {
         validateAmountPositive(amount);
 
         UserWallet wallet = walletRepository.findByUserIdForUpdate(userId)

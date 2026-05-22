@@ -39,7 +39,7 @@ public class WalletController {
 
     @PostMapping("/topup")
     public ResponseEntity<UserWalletResponse> topUp(@Validated @RequestBody TopUpRequest request) {
-        UserWallet wallet = walletService.topUp(request.userId(), request.amount());
+        UserWallet wallet = walletService.topUp(request.userId(), request.amount(), request.paymentMethod());
         return ResponseEntity.ok(responseMapper.toResponse(wallet));
     }
 

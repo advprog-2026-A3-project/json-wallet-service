@@ -2,12 +2,14 @@ package com.json.demo.grpc;
 
 import com.json.demo.model.UserWallet;
 import com.json.demo.service.WalletOperations;
+import com.json.demo.service.transaction.PaymentMethod;
 import com.json.demo.web.exception.InsufficientBalanceException;
 import com.json.demo.web.exception.InvalidAmountException;
 import com.json.demo.web.exception.WalletNotFoundException;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
+import com.json.demo.service.transaction.PaymentMethod;
 import net.devh.boot.grpc.server.service.GrpcService;
 
 import java.math.BigDecimal;
@@ -32,8 +34,12 @@ public class WalletGrpcEndpoint extends WalletGrpcServiceGrpc.WalletGrpcServiceI
 
     @Override
     public void topUp(WalletAmountRequest request, StreamObserver<WalletResponse> responseObserver) {
-        execute(responseObserver, () -> walletOperations.topUp(request.getUserId(), new BigDecimal(request.getAmount())));
-    }
+    execute(responseObserver, () -> walletOperations.topUp(
+            request.getUserId(),
+            new BigDecimal(request.getAmount()),
+            PaymentMethod.BANK_TRANSFER  // default dulu
+    ));
+}
 
     @Override
     public void withdraw(WalletAmountRequest request, StreamObserver<WalletResponse> responseObserver) {
