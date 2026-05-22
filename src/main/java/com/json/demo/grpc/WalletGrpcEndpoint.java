@@ -9,7 +9,6 @@ import com.json.demo.web.exception.WalletNotFoundException;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
-import com.json.demo.service.transaction.PaymentMethod;
 import net.devh.boot.grpc.server.service.GrpcService;
 
 import java.math.BigDecimal;
