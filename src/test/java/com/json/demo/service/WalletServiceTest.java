@@ -2,6 +2,7 @@ package com.json.demo.service;
 
 import com.json.demo.model.UserWallet;
 import com.json.demo.repository.WalletRepository;
+import com.json.demo.service.transaction.PaymentMethod;
 import com.json.demo.service.transaction.TopUpTransactionStrategy;
 import com.json.demo.service.transaction.WalletTransactionStrategyFactory;
 import com.json.demo.service.transaction.WithdrawTransactionStrategy;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import com.json.demo.service.transaction.PaymentMethod;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -70,13 +72,13 @@ class WalletServiceTest {
         assertThat(result.getBalance()).isEqualByComparingTo("50.00");
     }
 
-    @Test
-    void topUp_success() {
-        when(walletRepository.findByUserIdForUpdate("user-1")).thenReturn(Optional.of(wallet));
-        when(walletRepository.save(any())).thenAnswer(i -> i.getArgument(0));
-        UserWallet result = walletService.topUp("user-1", new BigDecimal("50.00"));
-        assertThat(result.getBalance()).isEqualByComparingTo("150.00");
-    }
+@Test
+void topUp_success() {
+    when(walletRepository.findByUserIdForUpdate("user-1")).thenReturn(Optional.of(wallet));
+    when(walletRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+    UserWallet result = walletService.topUp("user-1", new BigDecimal("50.00"), PaymentMethod.BANK_TRANSFER); // tambahin
+    assertThat(result.getBalance()).isEqualByComparingTo("150.00");
+}
 
     @Test
     void withdraw_success() {
@@ -104,16 +106,14 @@ class WalletServiceTest {
         verify(walletRepository, never()).save(any());
     }
 
-    @Test
-    void topUp_newUser_createsWalletFromZero() {
-        when(walletRepository.findByUserIdForUpdate("new-user")).thenReturn(Optional.empty());
-        when(walletRepository.save(any())).thenAnswer(i -> i.getArgument(0));
-
-        UserWallet result = walletService.topUp("new-user", new BigDecimal("25.00"));
-
-        assertThat(result.getUserId()).isEqualTo("new-user");
-        assertThat(result.getBalance()).isEqualByComparingTo("25.00");
-    }
+ @Test
+void topUp_newUser_createsWalletFromZero() {
+    when(walletRepository.findByUserIdForUpdate("new-user")).thenReturn(Optional.empty());
+    when(walletRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+    UserWallet result = walletService.topUp("new-user", new BigDecimal("25.00"), PaymentMethod.BANK_TRANSFER); // tambahin
+    assertThat(result.getUserId()).isEqualTo("new-user");
+    assertThat(result.getBalance()).isEqualByComparingTo("25.00");
+}
 
     @Test
     void withdraw_walletNotFound_throwsException() {
@@ -123,11 +123,11 @@ class WalletServiceTest {
                 .isInstanceOf(WalletNotFoundException.class);
     }
 
-    @Test
-    void topUp_invalidAmount_throwsException() {
-        assertThatThrownBy(() -> walletService.topUp("user-1", BigDecimal.ZERO))
-                .isInstanceOf(InvalidAmountException.class);
-    }
+@Test
+void topUp_invalidAmount_throwsException() {
+    assertThatThrownBy(() -> walletService.topUp("user-1", BigDecimal.ZERO, PaymentMethod.BANK_TRANSFER)) // tambahin
+            .isInstanceOf(InvalidAmountException.class);
+}
 
     @Test
     void createWallet_negativeInitialBalance_throwsException() {
